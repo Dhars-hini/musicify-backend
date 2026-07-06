@@ -8,7 +8,22 @@ const app = express();
 
 // Middleware
 app.use(express.json());
-app.use(cors());
+// CORS — allow local dev + Vercel production
+const allowedOrigins = [
+  'http://localhost:3000',
+  process.env.FRONTEND_URL, // set this on Render
+].filter(Boolean);
+
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+}));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // MongoDB Connection
